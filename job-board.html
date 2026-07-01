@@ -621,27 +621,19 @@ function getStorage(){
   return {
     async get(key){
       try{
-        const res=await fetch(SHARED_STORAGE_URL,{cache:'no-store'});
-        if(!res.ok) throw new Error('shared storage unavailable');
-        const data=await res.json();
-        const value=data && Object.prototype.hasOwnProperty.call(data,key)?data[key]:null;
-        if(value!==null && value!==undefined){
-          return {value};
+        const res=await fetch(`/api/blob?key=${encodeURIComponent(key)}`,{cache:'no-store'});
+        if(res.ok){
+          const data=await res.json();
+          if(data && Object.prototype.hasOwnProperty.call(data,'value')){
+            return {value:data.value};
+          }
         }
       }catch(e){}
       return {value: localStorage.getItem(key)};
     },
     async set(key, value){
       try{
-        let data={};
-        try{
-          const res=await fetch(SHARED_STORAGE_URL,{cache:'no-store'});
-          if(res.ok){
-            data=await res.json();
-          }
-        }catch(e){}
-        data[key]=value;
-        await fetch(SHARED_STORAGE_URL,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(data),cache:'no-store'});
+        await fetch('/api/blob',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({key,value}),cache:'no-store'});
       }catch(e){}
       localStorage.setItem(key, value);
     }
