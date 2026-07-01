@@ -20,8 +20,8 @@ function readJsonBody(req) {
 
 export default async function handler(req, res) {
   if (req.method === 'GET') {
-    const { searchParams } = new URL(req.url);
-    const key = searchParams.get('key');
+    const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
+    const key = url.searchParams.get('key');
     if (!key) {
       return res.status(400).json({ error: 'Missing key' });
     }
@@ -30,11 +30,17 @@ export default async function handler(req, res) {
       if (!blob) {
         return res.status(200).json({ value: null });
       }
-      const stream = blob.stream || blob.blob?.stream;
-      const value = stream ? await new Response(stream).text() : '';
+      let value = '';
+      if (typeof blob.text === 'function') {
+        value = await blob.text();
+      } else {
+        const stream = blob.stream || blob.blob?.stream;
+        value = stream ? await new Response(stream).text() : '';
+      }
       return res.status(200).json({ value });
     } catch (e) {
-      return res.status(200).json({ value: null });
+      console.error('api/blob GET error', e);
+      return res.status(500).json({ error: 'Storage read failed' });
     }
   }
 
