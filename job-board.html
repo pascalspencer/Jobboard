@@ -640,12 +640,104 @@ function getStorage(){
   };
 }
 
+const DEFAULT_JOBS = [
+  {
+    id: 'mr1r8nm0daa5y7',
+    title: 'Title: Generalist | Apply on Job',
+    company: 'Jobs',
+    location: 'Remote',
+    tags: ['Generalist','English speaker','Bilingual'],
+    description: 'Job Description\nRole Title: Generalist\nRole Type: Contractor\nmicro1 is engaging Generalists to contribute their broad skillsets for a customer\'s AI development project.',
+    referralLink: 'https://jobs.micro1.ai/post/3f414d4d-e9a4-4229-99b2-79393ed4ec98?referralCode=32c00967-5b94-46a2-8f38-75bac9165fc9&utm_source=referral&utm_medium=share&utm_campaign=job_referral',
+    status: 'active',
+    postedDate: '2026-07-01T07:29:12.841Z'
+  },
+  {
+    id: 'mr1rbrnylbjuqe',
+    title: 'Title: Red Team Lead (Offensive Cybersecurity) | Apply on Job',
+    company: 'Jobs',
+    location: 'Remote',
+    tags: ['Cyber security','Exploit chains','Cloud/appsec'],
+    description: 'Red Team Lead role focused on offensive cybersecurity, exploit chains, and cloud/appsec evaluation work.',
+    referralLink: 'https://jobs.micro1.ai/post/c11cbae4-dcfc-4832-95f4-99d3258133f8?referralCode=32c00967-5b94-46a2-8f38-75bac9165fc9&utm_source=referral&utm_medium=share&utm_campaign=job_referral',
+    status: 'active',
+    postedDate: '2026-07-01T07:31:38.063Z'
+  },
+  {
+    id: 'mr1rg0jio4ut54',
+    title: 'Title: Financial Services Expert | Apply on Job',
+    company: 'Jobs',
+    location: 'Remote',
+    tags: ['Financial advising','Rubrics','Prompt'],
+    description: 'Financial Services Expert role for evaluating personal finance scenarios and building prompt/rubric workflows.',
+    referralLink: 'https://jobs.micro1.ai/post/a6ec1f07-7c58-40c4-9013-e1e72a486bd3?referralCode=32c00967-5b94-46a2-8f38-75bac9165fc9&utm_source=referral&utm_medium=share&utm_campaign=job_referral',
+    status: 'active',
+    postedDate: '2026-07-01T07:34:56.191Z'
+  },
+  {
+    id: 'mr1rjbfyn4abhn',
+    title: 'Title: Junior Python Game Developer (Panda3D) | Apply on Job',
+    company: 'Jobs',
+    location: 'Remote',
+    tags: ['GitHub','Python','C++','Panda3D'],
+    description: 'Junior Python game developer role for game-development quality review and AI training support.',
+    referralLink: 'https://jobs.micro1.ai/post/67dd7653-263c-47d8-a198-0d3bcfa1316f?referralCode=32c00967-5b94-46a2-8f38-75bac9165fc9&utm_source=referral&utm_medium=share&utm_campaign=job_referral',
+    status: 'active',
+    postedDate: '2026-07-01T07:37:30.287Z'
+  },
+  {
+    id: 'mr1rmmedymk1jb',
+    title: 'Title: Household Data Specialist - Video Capture (ARG) | Apply on Job',
+    company: 'Jobs',
+    location: 'Remote',
+    tags: ['Attention to Detail','UMI-gripper','Video Capturing','Device controlling'],
+    description: 'Household robotics data collection role for video capture and device-guided task demonstrations.',
+    referralLink: 'https://jobs.micro1.ai/post/c3811866-7296-4c18-873d-79e55719d148?referralCode=32c00967-5b94-46a2-8f38-75bac9165fc9&utm_source=referral&utm_medium=share&utm_campaign=job_referral',
+    status: 'active',
+    postedDate: '2026-07-01T07:40:04.454Z'
+  },
+  {
+    id: 'mr1rpdgdzqkfuy',
+    title: 'Title: Video related professional for AI training | Apply on Job',
+    company: 'Jobs',
+    location: 'Remote',
+    tags: ['video editing','video production','workflows','motion graphics','visual effects (vfx)'],
+    description: 'Video professional role for AI training data review and video production workflow feedback.',
+    referralLink: 'https://jobs.micro1.ai/post/a03b510d-c115-4657-aaa9-c14f6cd42f1c?referralCode=32c00967-5b94-46a2-8f38-75bac9165fc9&utm_source=referral&utm_medium=share&utm_campaign=job_referral',
+    status: 'active',
+    postedDate: '2026-07-01T07:42:12.829Z'
+  },
+  {
+    id: 'mr1rs5500mlvgt',
+    title: 'Title: Video Editor | Apply on Job',
+    company: 'Jobs',
+    location: 'Remote',
+    tags: ['video editing','adobe premiere pro','after effects','final cut pro','davinci resolve'],
+    description: 'Video editor role for visual storytelling, animation, and post-production quality review.',
+    referralLink: 'https://jobs.micro1.ai/post/99bd931e-ade9-4346-86b6-0a7277f52007?referralCode=32c00967-5b94-46a2-8f38-75bac9165fc9&utm_source=referral&utm_medium=share&utm_campaign=job_referral',
+    status: 'active',
+    postedDate: '2026-07-01T07:44:22.021Z'
+  },
+  {
+    id: 'mr1rvi7wqb28d2',
+    title: 'Title: Game Developer (Java / libGDX) | Apply on Job',
+    company: 'Jobs',
+    location: 'Remote',
+    tags: ['JAVA','LibDXG'],
+    description: 'Game developer role using Java and libGDX for interactive application training support.',
+    referralLink: 'https://jobs.micro1.ai/post/f7d42ee2-8dd3-4807-b0c1-a432e21d6752?referralCode=32c00967-5b94-46a2-8f38-75bac9165fc9&utm_source=referral&utm_medium=share&utm_campaign=job_referral',
+    status: 'active',
+    postedDate: '2026-07-01T07:46:58.940Z'
+  }
+];
+
 async function loadJobs(){
   try{
     const storage=getStorage();
     const r=await storage.get(STORAGE_KEY_JOBS,true);
-    return r&&r.value?JSON.parse(r.value):[];
-  }catch(e){return [];}
+    const parsed = r&&r.value ? JSON.parse(r.value) : [];
+    return parsed.length ? parsed : DEFAULT_JOBS;
+  }catch(e){return DEFAULT_JOBS;}
 }
 async function saveJobs(jobs){
   const storage=getStorage();
