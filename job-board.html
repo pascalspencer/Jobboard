@@ -627,14 +627,25 @@ function getStorage(){
           if(data && Object.prototype.hasOwnProperty.call(data,'value')){
             return {value:data.value};
           }
+        } else {
+          const errorText = await res.text().catch(()=>res.statusText);
+          console.error('Storage GET failed', key, res.status, errorText);
         }
-      }catch(e){}
+      }catch(e){
+        console.error('Storage GET network error', key, e);
+      }
       return {value: localStorage.getItem(key)};
     },
     async set(key, value){
       try{
-        await fetch('/api/blob',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({key,value}),cache:'no-store'});
-      }catch(e){}
+        const res = await fetch('/api/blob',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({key,value}),cache:'no-store'});
+        if(!res.ok){
+          const errorText = await res.text().catch(()=>res.statusText);
+          console.error('Storage PUT failed', key, res.status, errorText);
+        }
+      }catch(e){
+        console.error('Storage PUT network error', key, e);
+      }
       localStorage.setItem(key, value);
     }
   };

@@ -2,6 +2,19 @@ import { put, del, get } from '@vercel/blob';
 
 export const runtime = 'nodejs';
 
+function blobAuthStatus() {
+  return {
+    hasReadWriteToken: Boolean(process.env.BLOB_READ_WRITE_TOKEN),
+    hasOidcToken: Boolean(process.env.VERCEL_OIDC_TOKEN),
+    hasBlobStoreId: Boolean(process.env.BLOB_STORE_ID),
+  };
+}
+
+function hasBlobCredentials() {
+  const status = blobAuthStatus();
+  return status.hasReadWriteToken || (status.hasOidcToken && status.hasBlobStoreId);
+}
+
 async function readJsonBody(req) {
   if (req.body) {
     return typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
@@ -22,6 +35,12 @@ async function readJsonBody(req) {
 }
 
 export default async function handler(req, res) {
+  if (!hasBlobCredentials()) {
+    const status = blobAuthStatus();
+    console.error('api/blob missing credentials', status);
+    return res.status(500).json({ error: 'Missing Blob credentials', details: status });
+  }
+
   if (req.method === 'GET') {
     const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
     const key = url.searchParams.get('key');
