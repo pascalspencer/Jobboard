@@ -1,4 +1,26 @@
-import { put, del, get } from '@vercel/blob';
+export const runtime = 'nodejs';
+
+let _blobSdk = null;
+async function ensureBlobSdk(){
+  if(!_blobSdk){
+    _blobSdk = await import('@vercel/blob');
+  }
+  return _blobSdk;
+}
+
+// small helpers to call SDK methods
+async function blobGet(...args){
+  const sdk = await ensureBlobSdk();
+  return sdk.get(...args);
+}
+async function blobPut(...args){
+  const sdk = await ensureBlobSdk();
+  return sdk.put(...args);
+}
+async function blobDel(...args){
+  const sdk = await ensureBlobSdk();
+  return sdk.del(...args);
+}
 
 export const runtime = 'nodejs';
 
@@ -45,7 +67,7 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Missing key' });
     }
     try {
-      const blob = await get(key, { access: 'public', token: BLOB_TOKEN, storeId: BLOB_STORE });
+      const blob = await blobGet(key, { access: 'public', token: BLOB_TOKEN, storeId: BLOB_STORE });
       if (!blob) {
         return res.status(200).json({ value: null });
       }
@@ -70,7 +92,7 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'Missing key' });
       }
       const blobValue = typeof value === 'string' ? value : JSON.stringify(value);
-      const blob = await put(key, blobValue, { access: 'public', addRandomSuffix: false, token: BLOB_TOKEN, storeId: BLOB_STORE });
+      const blob = await blobPut(key, blobValue, { access: 'public', addRandomSuffix: false, token: BLOB_TOKEN, storeId: BLOB_STORE });
       return res.status(200).json({ url: blob?.url || null });
     } catch (e) {
       console.error('api/blob PUT error', e);
@@ -84,7 +106,7 @@ export default async function handler(req, res) {
       if (!key) {
         return res.status(400).json({ error: 'Missing key' });
       }
-      await del(key, { token: BLOB_TOKEN, storeId: BLOB_STORE });
+      await blobDel(key, { token: BLOB_TOKEN, storeId: BLOB_STORE });
       return res.status(200).json({ ok: true });
     } catch (e) {
       return res.status(500).json({ error: 'Storage delete failed' });
