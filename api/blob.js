@@ -39,6 +39,7 @@ function hasBlobCredentials() {
 
 const BLOB_TOKEN = process.env.BLOB_READ_WRITE_TOKEN || undefined;
 const BLOB_STORE = process.env.BLOB_STORE_ID || undefined;
+const DEBUG = process.env.DEBUG_BLOB_API === 'true';
 
 async function readJsonBody(req) {
   if (req.body) {
@@ -60,6 +61,8 @@ async function readJsonBody(req) {
 }
 
 export default async function handler(req, res) {
+  const invocationId = req.headers['x-vercel-id'] || req.headers['x-now-deployment-id'] || req.headers['x-now-trace-id'];
+  if (invocationId) console.error('api/blob invocation id', invocationId);
   if (req.method === 'GET') {
     const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
     const key = url.searchParams.get('key');
@@ -81,7 +84,9 @@ export default async function handler(req, res) {
       return res.status(200).json({ value });
     } catch (e) {
       console.error('api/blob GET error', e);
-      return res.status(500).json({ error: 'Storage read failed', details: e.message });
+      const payload = { error: 'Storage read failed', details: e.message };
+      if (DEBUG) payload.stack = e.stack;
+      return res.status(500).json(payload);
     }
   }
 
@@ -96,7 +101,9 @@ export default async function handler(req, res) {
       return res.status(200).json({ url: blob?.url || null });
     } catch (e) {
       console.error('api/blob PUT error', e);
-      return res.status(500).json({ error: 'Storage update failed', details: e.message });
+      const payload = { error: 'Storage update failed', details: e.message };
+      if (DEBUG) payload.stack = e.stack;
+      return res.status(500).json(payload);
     }
   }
 
@@ -109,7 +116,10 @@ export default async function handler(req, res) {
       await blobDel(key, { token: BLOB_TOKEN, storeId: BLOB_STORE });
       return res.status(200).json({ ok: true });
     } catch (e) {
-      return res.status(500).json({ error: 'Storage delete failed' });
+      console.error('api/blob DELETE error', e);
+      const payload = { error: 'Storage delete failed', details: e.message };
+      if (DEBUG) payload.stack = e.stack;
+      return res.status(500).json(payload);
     }
   }
 
