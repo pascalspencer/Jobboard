@@ -22,8 +22,6 @@ async function blobDel(...args){
   return sdk.del(...args);
 }
 
-export const runtime = 'nodejs';
-
 function blobAuthStatus() {
   return {
     hasReadWriteToken: Boolean(process.env.BLOB_READ_WRITE_TOKEN),
@@ -105,9 +103,7 @@ export default async function handler(req, res) {
       if (DEBUG) payload.stack = e.stack;
       return res.status(500).json(payload);
     }
-  }
-
-  if (req.method === 'DELETE') {
+  } else if (req.method === 'DELETE') {
     try {
       const { key } = await readJsonBody(req);
       if (!key) {
