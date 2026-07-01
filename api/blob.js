@@ -2,14 +2,17 @@ import { put, del, get } from '@vercel/blob';
 
 export const runtime = 'nodejs';
 
-function readJsonBody(req) {
+async function readJsonBody(req) {
+  if (req.body) {
+    return typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
+  }
   return new Promise((resolve, reject) => {
-    const chunks = [];
-    req.on('data', chunk => chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk)));
+    let body = '';
+    req.on('data', chunk => body += chunk);
     req.on('end', () => {
-      if (!chunks.length) return resolve({});
+      if (!body) return resolve({});
       try {
-        resolve(JSON.parse(Buffer.concat(chunks).toString()));
+        resolve(JSON.parse(body));
       } catch (e) {
         reject(e);
       }
@@ -40,7 +43,7 @@ export default async function handler(req, res) {
       return res.status(200).json({ value });
     } catch (e) {
       console.error('api/blob GET error', e);
-      return res.status(500).json({ error: 'Storage read failed' });
+      return res.status(500).json({ error: 'Storage read failed', details: e.message });
     }
   }
 
@@ -50,10 +53,12 @@ export default async function handler(req, res) {
       if (!key) {
         return res.status(400).json({ error: 'Missing key' });
       }
-      const blob = await put(key, value, { access: 'private', addRandomSuffix: false });
-      return res.status(200).json({ url: blob.url });
+      const blobValue = typeof value === 'string' ? value : JSON.stringify(value);
+      const blob = await put(key, blobValue, { access: 'private', addRandomSuffix: false });
+      return res.status(200).json({ url: blob?.url || null });
     } catch (e) {
-      return res.status(500).json({ error: 'Storage update failed' });
+      console.error('api/blob PUT error', e);
+      return res.status(500).json({ error: 'Storage update failed', details: e.message });
     }
   }
 
