@@ -95,7 +95,7 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'Missing key' });
       }
       const blobValue = typeof value === 'string' ? value : JSON.stringify(value);
-      const blob = await blobPut(key, blobValue, { access: 'public', addRandomSuffix: false, token: BLOB_TOKEN, storeId: BLOB_STORE });
+      const blob = await blobPut(key, blobValue, { access: 'public', addRandomSuffix: false, allowOverwrite: true, token: BLOB_TOKEN, storeId: BLOB_STORE });
       return res.status(200).json({ url: blob?.url || null });
     } catch (e) {
       console.error('api/blob PUT error', e);
