@@ -1,7 +1,6 @@
 {
   "buildCommand": "# No build needed",
   "outputDirectory": ".",
-  "public": true,
   "rewrites": [
     {
       "source": "/(.*)",
