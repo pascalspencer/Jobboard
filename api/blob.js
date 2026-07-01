@@ -15,6 +15,9 @@ function hasBlobCredentials() {
   return status.hasReadWriteToken || (status.hasOidcToken && status.hasBlobStoreId);
 }
 
+const BLOB_TOKEN = process.env.BLOB_READ_WRITE_TOKEN || undefined;
+const BLOB_STORE = process.env.BLOB_STORE_ID || undefined;
+
 async function readJsonBody(req) {
   if (req.body) {
     return typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
@@ -35,12 +38,6 @@ async function readJsonBody(req) {
 }
 
 export default async function handler(req, res) {
-  if (!hasBlobCredentials()) {
-    const status = blobAuthStatus();
-    console.error('api/blob missing credentials', status);
-    return res.status(500).json({ error: 'Missing Blob credentials', details: status });
-  }
-
   if (req.method === 'GET') {
     const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
     const key = url.searchParams.get('key');
@@ -48,7 +45,7 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Missing key' });
     }
     try {
-      const blob = await get(key, { access: 'private' });
+      const blob = await get(key, { access: 'public', token: BLOB_TOKEN, storeId: BLOB_STORE });
       if (!blob) {
         return res.status(200).json({ value: null });
       }
@@ -73,7 +70,7 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'Missing key' });
       }
       const blobValue = typeof value === 'string' ? value : JSON.stringify(value);
-      const blob = await put(key, blobValue, { access: 'private', addRandomSuffix: false });
+      const blob = await put(key, blobValue, { access: 'public', addRandomSuffix: false, token: BLOB_TOKEN, storeId: BLOB_STORE });
       return res.status(200).json({ url: blob?.url || null });
     } catch (e) {
       console.error('api/blob PUT error', e);
@@ -87,7 +84,7 @@ export default async function handler(req, res) {
       if (!key) {
         return res.status(400).json({ error: 'Missing key' });
       }
-      await del(key);
+      await del(key, { token: BLOB_TOKEN, storeId: BLOB_STORE });
       return res.status(200).json({ ok: true });
     } catch (e) {
       return res.status(500).json({ error: 'Storage delete failed' });

@@ -614,12 +614,17 @@ function formatJobDescriptionHtml(text){
   return sections.map(renderSection).join('');
 }
 
+let storageLocalOnly = false;
+
 function getStorage(){
   if(window.storage && typeof window.storage.get==='function' && typeof window.storage.set==='function'){
     return window.storage;
   }
   return {
     async get(key){
+      if(storageLocalOnly){
+        return {value: localStorage.getItem(key)};
+      }
       try{
         const res=await fetch(`/api/blob?key=${encodeURIComponent(key)}`,{cache:'no-store'});
         if(res.ok){
@@ -630,21 +635,29 @@ function getStorage(){
         } else {
           const errorText = await res.text().catch(()=>res.statusText);
           console.error('Storage GET failed', key, res.status, errorText);
+          storageLocalOnly = true;
         }
       }catch(e){
         console.error('Storage GET network error', key, e);
+        storageLocalOnly = true;
       }
       return {value: localStorage.getItem(key)};
     },
     async set(key, value){
+      if(storageLocalOnly){
+        localStorage.setItem(key, value);
+        return;
+      }
       try{
         const res = await fetch('/api/blob',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({key,value}),cache:'no-store'});
         if(!res.ok){
           const errorText = await res.text().catch(()=>res.statusText);
           console.error('Storage PUT failed', key, res.status, errorText);
+          storageLocalOnly = true;
         }
       }catch(e){
         console.error('Storage PUT network error', key, e);
+        storageLocalOnly = true;
       }
       localStorage.setItem(key, value);
     }
