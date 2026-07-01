@@ -74,6 +74,7 @@
     overflow-x:auto;
     padding-bottom:8px;
     -webkit-overflow-scrolling:touch;
+    flex:1;
   }
   .tags-scroll::-webkit-scrollbar{
     height:6px;
@@ -89,6 +90,14 @@
     background:var(--ink-soft);
   }
   .chip-wrapper{
+    flex-shrink:0;
+  }
+  .tags-container{
+    display:flex;
+    gap:8px;
+    align-items:center;
+  }
+  .chip-static{
     flex-shrink:0;
   }
   input[type=text], input[type=url], input[type=password], textarea, select{
@@ -647,10 +656,12 @@ function renderPublic(){
         <div class="controls-top">
           <input type="text" class="search" id="searchInput" placeholder="Search by title, company, or location" value="${escapeHtml(state.search)}">
         </div>
-        <div class="tags-scroll">
-          <span class="chip chip-wrapper ${state.tagFilter===null?'active':''} " data-tag="">All</span>
-          ${tags.map(t=>`<span class="chip chip-wrapper ${state.tagFilter===t?'active':''} " data-tag="${escapeHtml(t)}">${escapeHtml(t)}</span>`).join('')}
-          <span class="chip chip-wrapper ${state.showFilled?'active':''} " id="toggleFilled">Show filled</span>
+        <div class="tags-container">
+          <span class="chip chip-static ${state.tagFilter===null?'active':''}" data-tag="">All</span>
+          <div class="tags-scroll">
+            ${tags.map(t=>`<span class="chip chip-wrapper ${state.tagFilter===t?'active':''}" data-tag="${escapeHtml(t)}">${escapeHtml(t)}</span>`).join('')}
+            <span class="chip chip-wrapper ${state.showFilled?'active':''}" id="toggleFilled">Show filled</span>
+          </div>
         </div>
       </div>
       <div class="feed" id="feed"></div>
