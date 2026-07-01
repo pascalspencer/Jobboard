@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Open Roles</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="icon" type="image/x-icon" href="/favicon.png">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#EFEAE1;
+    --paper-raised:#F8F5EE;
+    --ink:#232017;
+    --ink-soft:#6B6557;
+    --line:#D9D1BC;
+    --stamp:#A63B2E;
+    --moss:#5C6B4D;
+    --gold:#B6862F;
+    --radius:10px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:980px;margin:0 auto;padding:0 20px 80px;}
+  header.site{
+    padding:48px 0 20px;
+    border-bottom:1px solid var(--line);
+    margin-bottom:34px;
+  }
+  .eyebrow{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    color:var(--moss);
+    margin:0 0 10px;
+  }
+  h1.wordmark{
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    font-size:42px;
+    line-height:1.05;
+    margin:0 0 10px;
+    letter-spacing:-0.01em;
+  }
+  .sub{
+    font-size:15px;
+    color:var(--ink-soft);
+    max-width:70ch;
+    margin:0;
+    line-height:1.75;
+  }
+  .controls{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    align-items:center;
+    margin-bottom:30px;
+  }
+  input[type=text], input[type=url], input[type=password], textarea, select{
+    font-family:'Inter',sans-serif;
+    font-size:14px;
+    background:var(--paper-raised);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:12px 14px;
+    color:var(--ink);
+  }
+  input[type=text]:focus, input[type=url]:focus, input[type=password]:focus, textarea:focus, select:focus{
+    outline:2px solid var(--moss);
+    outline-offset:1px;
+  }
+  .search{flex:1;min-width:220px;}
+  .chip{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    border:1px solid var(--line);
+    background:var(--paper-raised);
+    color:var(--ink-soft);
+    padding:9px 15px;
+    border-radius:999px;
+    cursor:pointer;
+    user-select:none;
+    transition:all .2s ease;
+  }
+  .chip:hover{border-color:var(--moss);color:var(--ink);}
+  .chip.active{
+    background:var(--moss);
+    color:#fff;
+    border-color:var(--moss);
+  }
+  .feed{display:flex;flex-direction:column;gap:20px;}
+  .card{
+    position:relative;
+    background:var(--paper-raised);
+    border:1px solid var(--line);
+    border-radius:24px;
+    padding:24px 26px;
+    box-shadow:0 14px 30px rgba(20,30,40,.05);
+    transition:transform .2s ease,box-shadow .2s ease;
+  }
+  .card:hover{transform:translateY(-1px);box-shadow:0 18px 42px rgba(20,30,40,.09);}
+  .card-top{
+    display:grid;
+    grid-template-columns:1fr auto;
+    gap:22px;
+    align-items:start;
+    margin-bottom:12px;
+  }
+  .card-head{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
+  .company-row{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    align-items:center;
+    color:var(--ink-soft);
+    font-size:13px;
+  }
+  .company-name{
+    font-weight:600;
+    color:var(--ink);
+  }
+  .card-badges{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    margin-top:10px;
+  }
+  .card-meta{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    margin-top:10px;
+    color:var(--ink-soft);
+    font-size:13px;
+  }
+  .card-meta span{display:inline-flex;align-items:center;gap:6px;}
+  .badge{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    padding:6px 12px;
+    border-radius:999px;
+    background:#E4E9DB;
+    color:var(--moss);
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+  }
+  .badge.new{background:#D9E7E0;color:#3C5A44;}
+  .badge.high-demand{background:#F7E7E5;color:#963B2E;}
+  .card-footer{
+    margin-top:20px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:12px;
+  }
+  .stamp{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--stamp);
+    border-bottom:1.5px dashed var(--stamp);
+    padding-bottom:3px;
+    white-space:nowrap;
+  }
+  .card.filled .stamp{color:var(--ink-soft);border-color:var(--ink-soft);}
+  .job-title{
+    font-family:'Fraunces',serif;
+    font-weight:700;
+    font-size:26px;
+    margin:0 0 8px;
+    line-height:1.1;
+  }
+  .job-meta{
+    font-size:14px;
+    color:var(--ink-soft);
+    margin:0;
+  }
+  .job-desc{
+    font-size:15px;
+    line-height:1.75;
+    color:var(--ink);
+    margin:0;
+    overflow:hidden;
+  }
+  .job-desc.clamped{
+    max-height:160px;
+  }
+  .job-desc.expanded{
+    max-height:none !important;
+    overflow:visible !important;
+  }
+  .job-detail{
+    display:block;
+  }
+  .job-desc.no-desc{
+    color:var(--ink-soft);
+    font-style:italic;
+  }
+  .section{
+    margin-top:18px;
+  }
+  .section h3{
+    font-family:'Fraunces',serif;
+    font-size:18px;
+    margin:0 0 10px;
+  }
+  .section p{
+    margin:0;
+    color:var(--ink-soft);
+  }
+  .section ol{
+    margin:0;
+    padding-left:18px;
+    color:var(--ink);
+  }
+  .section ol li{
+    margin-bottom:8px;
+  }
+  .skill-grid{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+  .skill-pill{
+    background:#E4E9DB;
+    color:var(--moss);
+    padding:7px 12px;
+    border-radius:999px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+  }
+  .more-link{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    color:var(--moss);
+    background:none;
+    border:none;
+    cursor:pointer;
+    padding:0;
+    margin-top:14px;
+    display:inline-block;
+  }
+  .tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;}
+  .tag{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    color:var(--moss);
+    background:#E4E9DB;
+    padding:6px 10px;
+    border-radius:999px;
+  }
+  .apply-btn{
+    display:inline-block;
+    font-family:'Inter',sans-serif;
+    font-weight:500;
+    font-size:14px;
+    background:var(--ink);
+    color:var(--paper);
+    text-decoration:none;
+    padding:10px 20px;
+    border-radius:8px;
+  }
+  .apply-btn:hover{background:var(--stamp);}
+  .card.filled .apply-btn{
+    background:var(--line);
+    color:var(--ink-soft);
+    pointer-events:none;
+  }
+  .empty{
+    text-align:center;
+    padding:60px 20px;
+    color:var(--ink-soft);
+  }
+  .empty h2{
+    font-family:'Fraunces',serif;
+    font-weight:500;
+    font-size:20px;
+    color:var(--ink);
+    margin-bottom:6px;
+  }
+  footer.site{
+    text-align:center;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    color:var(--ink-soft);
+    padding-top:40px;
+  }
+
+  .admin-bar{
+    background:var(--ink);
+    color:var(--paper);
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    text-align:center;
+    padding:8px;
+  }
+  .admin-wrap{max-width:680px;margin:0 auto;padding:40px 20px 80px;}
+  .admin-card{
+    background:var(--paper-raised);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:24px;
+    margin-bottom:20px;
+  }
+  .admin-card h2{
+    font-family:'Fraunces',serif;
+    font-size:18px;
+    margin:0 0 16px;
+  }
+  .field{margin-bottom:14px;}
+  .field label{
+    display:block;
+    font-size:12px;
+    color:var(--ink-soft);
+    margin-bottom:5px;
+    font-family:'IBM Plex Mono',monospace;
+  }
+  .field input, .field textarea, .field select{width:100%;}
+  .field textarea{min-height:140px;resize:vertical;line-height:1.5;}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  button.primary{
+    font-family:'Inter',sans-serif;
+    font-weight:500;
+    font-size:14px;
+    background:var(--moss);
+    color:#fff;
+    border:none;
+    padding:11px 20px;
+    border-radius:8px;
+    cursor:pointer;
+  }
+  button.ghost{
+    font-family:'Inter',sans-serif;
+    font-size:13px;
+    background:none;
+    border:1px solid var(--line);
+    color:var(--ink-soft);
+    padding:9px 16px;
+    border-radius:8px;
+    cursor:pointer;
+  }
+  button.danger{
+    font-family:'Inter',sans-serif;
+    font-size:13px;
+    background:none;
+    border:1px solid var(--stamp);
+    color:var(--stamp);
+    padding:9px 16px;
+    border-radius:8px;
+    cursor:pointer;
+  }
+  .admin-job-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:12px 0;
+    border-bottom:1px solid var(--line);
+    gap:10px;
+  }
+  .admin-job-row:last-child{border-bottom:none;}
+  .admin-job-row .info{flex:1;min-width:0;}
+  .admin-job-row .info p{margin:0;font-size:13px;color:var(--ink-soft);}
+  .admin-job-row .info strong{font-size:14px;}
+  .actions{display:flex;gap:6px;flex-shrink:0;}
+  .status-note{font-size:12px;color:var(--ink-soft);margin-top:6px;}
+  .setup-box{max-width:420px;margin:80px auto;text-align:center;}
+  .hint{font-size:12px;color:var(--ink-soft);margin-top:6px;line-height:1.5;}
+  a.secret-url{word-break:break-all;color:var(--moss);}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+const STORAGE_KEY_JOBS = 'jobs-list';
+const STORAGE_KEY_CONFIG = 'site-config';
+
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,8);}
+function escapeHtml(s){return (s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function daysAgo(dateStr){
+  const d=Math.floor((Date.now()-new Date(dateStr).getTime())/86400000);
+  if(d<=0)return 'posted today';
+  if(d===1)return 'posted yesterday';
+  return 'posted '+d+'d ago';
+}
+
+function stripMarkdownImages(text){
+  if(!text) return '';
+  return text
+    .split('\n')
+    .map(line=>line.replace(/!\[[^\]]*\]\([^\)]*\)/g,'').trim())
+    .filter(line=>line)
+    .join('\n');
+}
+
+function cleanDescriptionText(text){
+  if(!text) return '';
+  text = stripMarkdownImages(text).replace(/<img[^>]*>/gi,'');
+  return text
+    .split('\n')
+    .map(line=>line.trim())
+    .map(line=>line.replace(/\*\*/g,'').replace(/\*\[/g,'[').replace(/\[\*/g,'[').replace(/\*(?=\S)/g,'').replace(/^#+\s*/,'').replace(/\[(.*?)\]\((.*?)\)/g,'$1').trim())
+    .filter(line=>{
+      if(!line) return false;
+      if(/^URL Source:/i.test(line)) return false;
+      if(/^Markdown Content:/i.test(line)) return false;
+      if(/^!\[.*\]\(.*\)$/.test(line)) return false;
+      if(/^(?:Title|Job Title|Job Type|Location|Job Summary|Job Description|Company):/i.test(line)) return false;
+      if(/^Jobs?\s*·/i.test(line)) return false;
+      if(/^Apply on Job$/i.test(line)) return false;
+      return true;
+    })
+    .join('\n')
+    .replace(/\n{3,}/g,'\n\n')
+    .trim();
+}
+
+function formatJobDescriptionHtml(text){
+  if(!text) return '<p class="job-desc no-desc">No description provided.</p>';
+  const lines=text.split('\n').map(line=>line.trim()).filter(Boolean);
+  const sections=[];
+  let current={title:'', content:[]};
+
+  const normalizeMarkerLine=line=>line.replace(/^[\*\u2022\s]+|[\*\u2022\s]+$/g,'').trim();
+  const isHeading=line=>/^(Required Skills(?: and Qualifications)?|About(?:\s+micro1)?|Scope of Work|Key Responsibilities|Required Skills and Qualifications|Preferred Qualifications)\s*:*/i.test(normalizeMarkerLine(line));
+  const isRoleDetail=line=>/^(Role Title|Role Type|Location)\s*:/i.test(normalizeMarkerLine(line));
+  const parseListItems=lines=>{
+    const items=[];
+    let currentItem='';
+    lines.forEach(line=>{
+      const match=line.match(/^\s*(?:\d+\.|[-*+]|•)\s+(.*)$/);
+      if(match){
+        if(currentItem) items.push(currentItem.trim());
+        currentItem=match[1].trim();
+      } else if(line.trim()){
+        if(currentItem) currentItem += ' '+line.trim();
+        else items.push(line.trim());
+      }
+    });
+    if(currentItem) items.push(currentItem.trim());
+    if(items.length<=1 && lines.length>1){
+      const fallback=lines
+        .map(line=>line.replace(/^\s*(?:\d+\.|[-*+]|•)?\s*/,'').trim())
+        .filter(Boolean);
+      if(fallback.length>1) return fallback;
+    }
+    return items;
+  };
+
+  lines.forEach(line=>{
+    if(isHeading(line)){
+      if(current.title || current.content.length) sections.push(current);
+      current={title:line.replace(/:$/,'').trim(),content:[]};
+    } else if(isRoleDetail(line)){
+      if(current.title==='Role details' || (!current.title && !current.content.length)){
+        current.title='Role details';
+        current.content.push(line);
+      } else {
+        if(current.title || current.content.length) sections.push(current);
+        current={title:'Role details',content:[line]};
+      }
+    } else {
+      current.content.push(line);
+    }
+  });
+  if(current.title || current.content.length) sections.push(current);
+
+  const renderSection=section=>{
+    const title=escapeHtml(section.title);
+    const content=section.content;
+    if(!section.title){
+      return `<p>${escapeHtml(content.join(' '))}</p>`;
+    }
+    if(/^Role details$/i.test(section.title)){
+      return `<div class="section"><h3>${title}</h3>${content.map(line=>{
+        const m=line.match(/^(Role Title|Role Type|Location)\s*:\s*(.*)$/i);
+        return m ? `<p><strong>${escapeHtml(m[1])}:</strong> ${escapeHtml(m[2])}</p>` : `<p>${escapeHtml(line)}</p>`;
+      }).join('')}</div>`;
+    }
+    if(/^Scope of Work$/i.test(section.title)){
+      const items=parseListItems(content);
+      return `<div class="section"><h3>${title}</h3><ol>${items.map(item=>`<li>${escapeHtml(item)}</li>`).join('')}</ol></div>`;
+    }
+    if(/^Required Skills$/i.test(section.title)){
+      const skills=parseListItems(content).map(skill=>skill.replace(/^[:\-\d.]+\s*/,'').trim()).filter(Boolean);
+      return `<div class="section"><h3>${title}</h3><p>${skills.map(skill=>escapeHtml(skill)).join(', ')}</p></div>`;
+    }
+    if(/^Required Skills and Qualifications$/i.test(section.title)){
+      const items=parseListItems(content).map(item=>item.replace(/^[:\-\d.]+\s*/,'').trim()).filter(Boolean);
+      return `<div class="section"><h3>${title}</h3><ol>${items.map(item=>`<li>${escapeHtml(item)}</li>`).join('')}</ol></div>`;
+    }
+    if(/^Preferred Qualifications$/i.test(section.title)){
+      const items=parseListItems(content).map(item=>item.replace(/^[:\-\d.]+\s*/,'').trim()).filter(Boolean);
+      return `<div class="section"><h3>${title}</h3><ol>${items.map(item=>`<li>${escapeHtml(item)}</li>`).join('')}</ol></div>`;
+    }
+    if(/^About\s+/i.test(section.title)){
+      return `<div class="section"><h3>${title}</h3><p>${escapeHtml(content.join(' '))}</p></div>`;
+    }
+    if(/^(Key Responsibilities|Required Skills and Qualifications|Preferred Qualifications)$/i.test(section.title)){
+      const items=parseListItems(content);
+      return `<div class="section"><h3>${title}</h3><ol>${items.map(item=>`<li>${escapeHtml(item)}</li>`).join('')}</ol></div>`;
+    }
+    return `<div class="section"><h3>${title}</h3><p>${escapeHtml(content.join(' '))}</p></div>`;
+  };
+
+  return sections.map(renderSection).join('');
+}
+
+function getStorage(){
+  if(window.storage && typeof window.storage.get==='function' && typeof window.storage.set==='function'){
+    return window.storage;
+  }
+  return {
+    async get(key){
+      return {value: localStorage.getItem(key)};
+    },
+    async set(key, value){
+      localStorage.setItem(key, value);
+    }
+  };
+}
+
+async function loadJobs(){
+  try{
+    const storage=getStorage();
+    const r=await storage.get(STORAGE_KEY_JOBS,true);
+    return r&&r.value?JSON.parse(r.value):[];
+  }catch(e){return [];}
+}
+async function saveJobs(jobs){
+  const storage=getStorage();
+  await storage.set(STORAGE_KEY_JOBS,JSON.stringify(jobs),true);
+}
+async function loadConfig(){
+  try{
+    const storage=getStorage();
+    const r=await storage.get(STORAGE_KEY_CONFIG,true);
+    return r&&r.value?JSON.parse(r.value):null;
+  }catch(e){return null;}
+}
+async function saveConfig(cfg){
+  const storage=getStorage();
+  await storage.set(STORAGE_KEY_CONFIG,JSON.stringify(cfg),true);
+}
+
+function getRoute(){
+  const h=location.hash;
+  if(h.startsWith('#jobspot')){
+    const parts=h.split('/');
+    return {admin:true, secret:parts[1]||''};
+  }
+  return {admin:false};
+}
+
+let state={jobs:[],config:null,search:'',tagFilter:null,showFilled:false};
+
+async function init(){
+  state.jobs=await loadJobs();
+  state.config=await loadConfig();
+  render();
+}
+window.addEventListener('hashchange',render);
+
+function render(){
+  const route=getRoute();
+  if(route.admin){
+    renderAdmin(route.secret);
+  }else{
+    renderPublic();
+  }
+}
+
+function allTags(){
+  const set=new Set();
+  state.jobs.forEach(j=>(j.tags||[]).forEach(t=>set.add(t)));
+  return Array.from(set);
+}
+
+function renderPublic(){
+  const app=document.getElementById('app');
+  const q=state.search.trim().toLowerCase();
+  let jobs=state.jobs.filter(j=>{
+    if(!state.showFilled && j.status==='filled') return false;
+    if(state.tagFilter && !(j.tags||[]).includes(state.tagFilter)) return false;
+    if(q){
+      const hay=(j.title+' '+j.company+' '+j.location+' '+j.description).toLowerCase();
+      if(!hay.includes(q)) return false;
+    }
+    return true;
+  });
+  jobs.sort((a,b)=>new Date(b.postedDate)-new Date(a.postedDate));
+
+  const tags=allTags();
+
+  app.innerHTML=`
+    <div class="wrap">
+      <header class="site">
+        <p class="eyebrow">curated, updated as roles open</p>
+        <h1 class="wordmark">Open Roles</h1>
+        <p class="sub">A running list of opportunities worth a look. Click through to apply directly.</p>
+      </header>
+      <div class="controls">
+        <input type="text" class="search" id="searchInput" placeholder="Search by title, company, or location" value="${escapeHtml(state.search)}">
+        <span class="chip ${state.tagFilter===null?'active':''}" data-tag="">All</span>
+        ${tags.map(t=>`<span class="chip ${state.tagFilter===t?'active':''}" data-tag="${escapeHtml(t)}">${escapeHtml(t)}</span>`).join('')}
+        <span class="chip ${state.showFilled?'active':''}" id="toggleFilled">Show filled</span>
+      </div>
+      <div class="feed" id="feed"></div>
+      <footer class="site">curated by hand &middot; no listings are sponsored</footer>
+    </div>
+  `;
+
+  const feed=document.getElementById('feed');
+  if(jobs.length===0){
+    feed.innerHTML=`<div class="empty"><h2>Nothing matches yet</h2><p>Try a different search or check back soon &mdash; new roles get added regularly.</p></div>`;
+  }else{
+    feed.innerHTML=jobs.map(j=>{
+      const descText=cleanDescriptionText(j.description);
+      const descHtml=formatJobDescriptionHtml(descText);
+      const showMore=descText.length>320;
+      return `
+      <div class="card ${j.status==='filled'?'filled':''}">
+        <div class="card-top">
+          <div class="card-head">
+            <h2 class="job-title">${escapeHtml(j.title)}</h2>
+            <div class="company-row">
+              <span class="company-name">${escapeHtml(j.company)}</span>
+              ${j.location?`<span>${escapeHtml(j.location)}</span>`:''}
+            </div>
+          </div>
+          <span class="stamp">${j.status==='filled'?'Filled':daysAgo(j.postedDate)}</span>
+        </div>
+        ${(j.tags&&j.tags.length)?`<div class="card-badges">${j.tags.slice(0,5).map(t=>`<span class="badge">${escapeHtml(t)}</span>`).join('')}</div>`:''}
+        <div class="job-desc clamped" id="desc-${j.id}"><div class="job-detail">${descHtml}</div></div>
+        ${showMore?`<button class="more-link" data-id="${j.id}">Read full description</button>`:''}
+        <div class="card-footer">
+          <div class="card-meta">
+            <span>${j.tags&&j.tags.length?`${j.tags.length} required skills`: 'No skill tags'}</span>
+            <span>${j.status==='filled'?'Closed':'Open'}</span>
+          </div>
+          <a class="apply-btn" href="${j.status==='filled'?'#':escapeHtml(j.referralLink)}" target="_blank" rel="noopener">${j.status==='filled'?'Filled':'Apply now'}</a>
+        </div>
+      </div>
+      `;
+    }).join('');
+  }
+
+  document.getElementById('searchInput').oninput=e=>{state.search=e.target.value;render();};
+  document.querySelectorAll('.chip[data-tag]').forEach(c=>{
+    c.onclick=()=>{state.tagFilter=c.dataset.tag||null;render();};
+  });
+  document.getElementById('toggleFilled').onclick=()=>{state.showFilled=!state.showFilled;render();};
+  document.querySelectorAll('.more-link').forEach(btn=>{
+    btn.onclick=()=>{
+      const el=document.getElementById('desc-'+btn.dataset.id);
+      if(el.classList.contains('clamped')){
+        el.classList.remove('clamped');
+        el.classList.add('expanded');
+        btn.textContent='Show less';
+      } else {
+        el.classList.add('clamped');
+        el.classList.remove('expanded');
+        btn.textContent='Read full description';
+      }
+    };
+  });
+}
+
+async function renderAdmin(secretFromUrl){
+  const app=document.getElementById('app');
+
+  if(!state.config){
+    app.innerHTML=`
+      <div class="admin-wrap">
+        <div class="setup-box">
+          <p class="eyebrow">first-time setup</p>
+          <h1 class="wordmark" style="font-size:28px;">Claim admin access</h1>
+          <p class="sub" style="margin:0 auto 20px;">Choose a private phrase. You'll bookmark a link containing it &mdash; that link is the only way in.</p>
+          <div class="field" style="text-align:left;">
+            <label>Admin phrase</label>
+            <input type="password" id="newSecret" placeholder="something only you know">
+          </div>
+          <button class="primary" id="claimBtn">Save and continue</button>
+        </div>
+      </div>
+    `;
+    document.getElementById('claimBtn').onclick=async()=>{
+      const v=document.getElementById('newSecret').value.trim();
+      if(!v) return;
+      await saveConfig({secret:v});
+      state.config={secret:v};
+      location.hash='#jobspot/'+encodeURIComponent(v);
+      render();
+    };
+    return;
+  }
+
+  if(secretFromUrl!==state.config.secret){
+    app.innerHTML=`
+      <div class="admin-wrap">
+        <div class="setup-box">
+          <p class="eyebrow">admin</p>
+          <h1 class="wordmark" style="font-size:28px;">Enter your phrase</h1>
+          <div class="field" style="text-align:left;">
+            <input type="password" id="checkSecret" placeholder="admin phrase">
+          </div>
+          <button class="primary" id="checkBtn">Continue</button>
+        </div>
+      </div>
+    `;
+    document.getElementById('checkBtn').onclick=()=>{
+      const v=document.getElementById('checkSecret').value.trim();
+      location.hash='#jobspot/'+encodeURIComponent(v);
+      render();
+    };
+    return;
+  }
+
+  const secretUrl=location.origin+location.pathname+'#jobspot/'+encodeURIComponent(state.config.secret);
+
+  app.innerHTML=`
+    <div class="admin-bar">admin mode &mdash; keep this link private &middot; <a href="#" id="exitAdmin" style="color:#fff;">view public site</a></div>
+    <div class="admin-wrap">
+      <div class="admin-card">
+        <h2>Bookmark this</h2>
+        <p class="hint">This is your only way back into admin mode:</p>
+        <a class="secret-url" href="${secretUrl}">${secretUrl}</a>
+      </div>
+
+      <div class="admin-card">
+        <h2>Add a role</h2>
+        <div class="field">
+          <label>Job posting URL</label>
+          <input type="url" id="fetchUrl" placeholder="https://company.com/careers/role">
+        </div>
+        <button class="ghost" id="fetchBtn">Pull details from URL</button>
+        <p class="status-note" id="fetchStatus"></p>
+        <div style="margin-top:18px;">
+          <div class="field"><label>Job title</label><input type="text" id="f-title"></div>
+          <div class="row2">
+            <div class="field"><label>Company</label><input type="text" id="f-company"></div>
+            <div class="field"><label>Location</label><input type="text" id="f-location"></div>
+          </div>
+          <div class="field"><label>Tags (comma-separated)</label><input type="text" id="f-tags" placeholder="remote, engineering, senior"></div>
+          <div class="field"><label>Description</label><textarea id="f-desc"></textarea></div>
+          <div class="field"><label>Your referral link (what people land on when they click Apply)</label><input type="url" id="f-link" placeholder="https://company.com/apply?ref=..."></div>
+          <button class="primary" id="saveJobBtn">Publish role</button>
+        </div>
+      </div>
+
+      <div class="admin-card">
+        <h2>Live roles (${state.jobs.length})</h2>
+        <div id="adminJobList"></div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('exitAdmin').onclick=(e)=>{e.preventDefault();location.hash='';render();};
+
+  function clearJobForm(){
+    document.getElementById('f-title').value='';
+    document.getElementById('f-company').value='';
+    document.getElementById('f-location').value='';
+    document.getElementById('f-tags').value='';
+    document.getElementById('f-desc').value='';
+    document.getElementById('f-link').value='';
+  }
+
+  document.getElementById('fetchBtn').onclick=async()=>{
+    const url=document.getElementById('fetchUrl').value.trim();
+    const statusEl=document.getElementById('fetchStatus');
+    if(!url){statusEl.textContent='Paste a URL first.';return;}
+    statusEl.textContent='Fetching…';
+    try{
+      const res=await fetch('https://r.jina.ai/'+url);
+      if(!res.ok) throw new Error('fetch failed');
+      const text=await res.text();
+      const originalLines=text.split(/\r?\n/);
+      const trimmedLines=originalLines.map(l=>l.trim());
+      let title='';
+      let titleIndex=-1;
+      for(let i=0;i<trimmedLines.length;i++){
+        const stripped=trimmedLines[i].replace(/^#+\s*/,'');
+        if(stripped.length>4 && stripped.length<120 && !stripped.startsWith('http')){title=stripped;titleIndex=i;break;}
+      }
+      let company='';
+      try{ company=new URL(url).hostname.replace('www.','').split('.')[0]; company=company.charAt(0).toUpperCase()+company.slice(1); }catch(e){}
+      const rawBody=originalLines.filter((line,index)=>{
+        const trimmed=line.trim();
+        if(index===titleIndex) return false;
+        if(!trimmed) return true;
+        if(/^https?:\/\//i.test(trimmed)) return false;
+        return true;
+      }).join('\n');
+      const body=cleanDescriptionText(rawBody);
+
+      document.getElementById('f-title').value=title;
+      document.getElementById('f-company').value=company;
+      document.getElementById('f-desc').value=body;
+      statusEl.textContent='Pulled — check the fields below before publishing, auto-fetch is best-effort.';
+    }catch(e){
+      clearJobForm();
+      statusEl.textContent="Couldn't auto-fetch this site. The form has been cleared so you can enter details manually.";
+    }
+  };
+
+  document.getElementById('saveJobBtn').onclick=async()=>{
+    const title=document.getElementById('f-title').value.trim();
+    const link=document.getElementById('f-link').value.trim();
+    if(!title || !link){alert('Title and referral link are required.');return;}
+    const job={
+      id:uid(),
+      title,
+      company:document.getElementById('f-company').value.trim(),
+      location:document.getElementById('f-location').value.trim(),
+      tags:document.getElementById('f-tags').value.split(',').map(t=>t.trim()).filter(Boolean),
+      description:cleanDescriptionText(document.getElementById('f-desc').value.trim()),
+      referralLink:link,
+      status:'active',
+      postedDate:new Date().toISOString()
+    };
+    state.jobs.push(job);
+    await saveJobs(state.jobs);
+    render();
+  };
+
+  renderAdminJobList();
+}
+
+function renderAdminJobList(){
+  const list=document.getElementById('adminJobList');
+  if(!list) return;
+  const jobs=[...state.jobs].sort((a,b)=>new Date(b.postedDate)-new Date(a.postedDate));
+  if(jobs.length===0){
+    list.innerHTML='<p class="hint">No roles yet — add one above.</p>';
+    return;
+  }
+  list.innerHTML=jobs.map(j=>`
+    <div class="admin-job-row">
+      <div class="info">
+        <strong>${escapeHtml(j.title)}</strong>
+        <p>${escapeHtml(j.company)} &middot; ${j.status==='filled'?'filled':'active'} &middot; ${daysAgo(j.postedDate)}</p>
+      </div>
+      <div class="actions">
+        <button class="ghost" data-action="toggle" data-id="${j.id}">${j.status==='filled'?'Mark active':'Mark filled'}</button>
+        <button class="danger" data-action="delete" data-id="${j.id}">Delete</button>
+      </div>
+    </div>
+  `).join('');
+
+  list.querySelectorAll('[data-action="toggle"]').forEach(btn=>{
+    btn.onclick=async()=>{
+      const job=state.jobs.find(j=>j.id===btn.dataset.id);
+      job.status=job.status==='filled'?'active':'filled';
+      await saveJobs(state.jobs);
+      render();
+    };
+  });
+  list.querySelectorAll('[data-action="delete"]').forEach(btn=>{
+    btn.onclick=async()=>{
+      if(!confirm('Delete this role permanently?')) return;
+      state.jobs=state.jobs.filter(j=>j.id!==btn.dataset.id);
+      await saveJobs(state.jobs);
+      render();
+    };
+  });
+}
+
+init();
+</script>
+</body>
+</html>
