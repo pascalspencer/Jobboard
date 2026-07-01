@@ -59,10 +59,37 @@
   }
   .controls{
     display:flex;
-    gap:10px;
-    flex-wrap:wrap;
-    align-items:center;
+    flex-direction:column;
+    gap:12px;
     margin-bottom:30px;
+  }
+  .controls-top{
+    display:flex;
+    gap:10px;
+    align-items:center;
+  }
+  .tags-scroll{
+    display:flex;
+    gap:8px;
+    overflow-x:auto;
+    padding-bottom:8px;
+    -webkit-overflow-scrolling:touch;
+  }
+  .tags-scroll::-webkit-scrollbar{
+    height:6px;
+  }
+  .tags-scroll::-webkit-scrollbar-track{
+    background:transparent;
+  }
+  .tags-scroll::-webkit-scrollbar-thumb{
+    background:var(--line);
+    border-radius:3px;
+  }
+  .tags-scroll::-webkit-scrollbar-thumb:hover{
+    background:var(--ink-soft);
+  }
+  .chip-wrapper{
+    flex-shrink:0;
   }
   input[type=text], input[type=url], input[type=password], textarea, select{
     font-family:'Inter',sans-serif;
@@ -617,10 +644,14 @@ function renderPublic(){
         <p class="sub">A running list of opportunities worth a look. Click to apply directly.</p>
       </header>
       <div class="controls">
-        <input type="text" class="search" id="searchInput" placeholder="Search by title, company, or location" value="${escapeHtml(state.search)}">
-        <span class="chip ${state.tagFilter===null?'active':''}" data-tag="">All</span>
-        ${tags.map(t=>`<span class="chip ${state.tagFilter===t?'active':''}" data-tag="${escapeHtml(t)}">${escapeHtml(t)}</span>`).join('')}
-        <span class="chip ${state.showFilled?'active':''}" id="toggleFilled">Show filled</span>
+        <div class="controls-top">
+          <input type="text" class="search" id="searchInput" placeholder="Search by title, company, or location" value="${escapeHtml(state.search)}">
+        </div>
+        <div class="tags-scroll">
+          <span class="chip chip-wrapper ${state.tagFilter===null?'active':''} " data-tag="">All</span>
+          ${tags.map(t=>`<span class="chip chip-wrapper ${state.tagFilter===t?'active':''} " data-tag="${escapeHtml(t)}">${escapeHtml(t)}</span>`).join('')}
+          <span class="chip chip-wrapper ${state.showFilled?'active':''} " id="toggleFilled">Show filled</span>
+        </div>
       </div>
       <div class="feed" id="feed"></div>
       <footer class="site">curated by hand &middot; no listings are sponsored</footer>
