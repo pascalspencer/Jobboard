@@ -133,6 +133,37 @@
     border-color:var(--moss);
   }
   .feed{display:flex;flex-direction:column;gap:20px;}
+  .pagination{
+    display:flex;
+    justify-content:center;
+    gap:8px;
+    margin-top:30px;
+    flex-wrap:wrap;
+  }
+  .pagination button{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    background:var(--paper-raised);
+    border:1px solid var(--line);
+    color:var(--ink-soft);
+    padding:8px 12px;
+    border-radius:6px;
+    cursor:pointer;
+    transition:all .2s ease;
+  }
+  .pagination button:hover:not(:disabled){
+    border-color:var(--moss);
+    color:var(--ink);
+  }
+  .pagination button:disabled{
+    opacity:0.5;
+    cursor:not-allowed;
+  }
+  .pagination button.active{
+    background:var(--moss);
+    color:#fff;
+    border-color:var(--moss);
+  }
   .card{
     position:relative;
     background:var(--paper-raised);
@@ -605,7 +636,7 @@ function getRoute(){
   return {admin:false};
 }
 
-let state={jobs:[],config:null,search:'',tagFilter:null,showFilled:false};
+let state={jobs:[],config:null,search:'',tagFilter:null,showFilled:false,currentPage:0};
 
 async function init(){
   state.jobs=await loadJobs();
@@ -642,6 +673,10 @@ function renderPublic(){
     return true;
   });
   jobs.sort((a,b)=>new Date(b.postedDate)-new Date(a.postedDate));
+  
+  if(state.currentPage*6>=jobs.length&&jobs.length>0)state.currentPage=Math.max(0,Math.ceil(jobs.length/6)-1);
+  const totalPages=Math.ceil(jobs.length/6);
+  const paginatedJobs=jobs.slice(state.currentPage*6,(state.currentPage+1)*6);
 
   const tags=allTags();
 
@@ -657,7 +692,7 @@ function renderPublic(){
           <input type="text" class="search" id="searchInput" placeholder="Search by title, company, or location" value="${escapeHtml(state.search)}">
         </div>
         <div class="tags-container">
-          <span class="chip chip-static ${state.tagFilter===null?'active':''}" data-tag="">All</span>
+          <span class="chip chip-static chip-wrapper ${state.tagFilter===null?'active':''}" data-tag="">All</span>
           <div class="tags-scroll">
             ${tags.map(t=>`<span class="chip chip-wrapper ${state.tagFilter===t?'active':''}" data-tag="${escapeHtml(t)}">${escapeHtml(t)}</span>`).join('')}
             <span class="chip chip-wrapper ${state.showFilled?'active':''}" id="toggleFilled">Show filled</span>
@@ -665,6 +700,7 @@ function renderPublic(){
         </div>
       </div>
       <div class="feed" id="feed"></div>
+      ${totalPages>1?`<div class="pagination" id="pagination"></div>`:''}
       <footer class="site">curated by hand &middot; no listings are sponsored</footer>
     </div>
   `;
@@ -673,7 +709,7 @@ function renderPublic(){
   if(jobs.length===0){
     feed.innerHTML=`<div class="empty"><h2>Nothing matches yet</h2><p>Try a different search or check back soon &mdash; new roles get added regularly.</p></div>`;
   }else{
-    feed.innerHTML=jobs.map(j=>{
+    feed.innerHTML=paginatedJobs.map(j=>{
       const descText=cleanDescriptionText(j.description);
       const descHtml=formatJobDescriptionHtml(descText);
       const showMore=descText.length>320;
@@ -704,11 +740,11 @@ function renderPublic(){
     }).join('');
   }
 
-  document.getElementById('searchInput').oninput=e=>{state.search=e.target.value;render();};
+  document.getElementById('searchInput').oninput=e=>{state.search=e.target.value;state.currentPage=0;render();};
   document.querySelectorAll('.chip[data-tag]').forEach(c=>{
-    c.onclick=()=>{state.tagFilter=c.dataset.tag||null;render();};
+    c.onclick=()=>{state.tagFilter=c.dataset.tag||null;state.currentPage=0;render();};
   });
-  document.getElementById('toggleFilled').onclick=()=>{state.showFilled=!state.showFilled;render();};
+  document.getElementById('toggleFilled').onclick=()=>{state.showFilled=!state.showFilled;state.currentPage=0;render();};
   document.querySelectorAll('.more-link').forEach(btn=>{
     btn.onclick=()=>{
       const el=document.getElementById('desc-'+btn.dataset.id);
@@ -723,6 +759,21 @@ function renderPublic(){
       }
     };
   });
+  
+  if(totalPages>1){
+    const pag=document.getElementById('pagination');
+    let html=`<button id="prevBtn" ${state.currentPage===0?'disabled':''}>← Prev</button>`;
+    for(let i=0;i<totalPages;i++){
+      html+=`<button class="page-btn ${state.currentPage===i?'active':''}" data-page="${i}">${i+1}</button>`;
+    }
+    html+=`<button id="nextBtn" ${state.currentPage===totalPages-1?'disabled':''}>Next →</button>`;
+    pag.innerHTML=html;
+    document.getElementById('prevBtn').onclick=()=>{if(state.currentPage>0){state.currentPage--;render();}};
+    document.getElementById('nextBtn').onclick=()=>{if(state.currentPage<totalPages-1){state.currentPage++;render();}};
+    document.querySelectorAll('.page-btn').forEach(btn=>{
+      btn.onclick=()=>{state.currentPage=parseInt(btn.dataset.page);render();};
+    });
+  }
 }
 
 async function renderAdmin(secretFromUrl){
