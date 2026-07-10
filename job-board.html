@@ -529,9 +529,13 @@ function formatJobDescriptionHtml(text){
   const sections=[];
   let current={title:'', content:[]};
 
-  const normalizeMarkerLine=line=>line.replace(/^[\*\u2022\s]+|[\*\u2022\s]+$/g,'').trim();
-  const isHeading=line=>/^(Required Skills(?: and Qualifications)?|About(?:\s+micro1)?|Scope of Work|Key Responsibilities|Required Skills and Qualifications|Preferred Qualifications)\s*:*/i.test(normalizeMarkerLine(line));
-  const isRoleDetail=line=>/^(Role Title|Role Type|Location)\s*:/i.test(normalizeMarkerLine(line));
+  const normalizeMarkerLine = line =>
+    line.replace(/^[*\u2022\s]+|[*\u2022\s]+$/g, '').trim();
+  
+  const isHeading = line =>
+    /^(About(?:\s+micro1)?|Compensation|Key Responsibilities|Preferred Qualifications|Required Skills(?: and Qualifications)?|Scope of Work|Nice to Have|What Success Looks Like|Contract\s*&\s*Payment\s*Terms)\s*:*/i.test(
+      normalizeMarkerLine(line)
+    );  const isRoleDetail=line=>/^(Role Title|Role Type|Location)\s*:/i.test(normalizeMarkerLine(line));
   const parseListItems=lines=>{
     const items=[];
     let currentItem='';
